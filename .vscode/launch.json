@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'rslogo'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=rslogo",
+                    "--package=rslogo"
+                ],
+                "filter": {
+                    "name": "rslogo",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "/root/rslogo/logo_examples/1_01_setpencolor.lg",
+                "/root/rslogo/test.png",
+                "100",
+                "100"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'rslogo'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=rslogo",
+                    "--package=rslogo"
+                ],
+                "filter": {
+                    "name": "rslogo",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
