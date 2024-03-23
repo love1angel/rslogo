@@ -48,6 +48,8 @@ pub enum ASTNode {
     // function name, argument
     FunctionCall(FunName, Option<Vec<String>>),
 
+    PlusAnd(String, String),
+    Define(String, String),
     // literal queries
     Expersion(Vec<ASTNode>),
     If(Box<ASTNode>, Vec<ASTNode>),

@@ -1,7 +1,11 @@
+mod expression;
+
 use std::str::FromStr;
 
 use crate::ast::{ASTNode, FunName};
+use crate::lexer::variable::is_variable;
 use crate::lexer::{self, Lexer, Token, TokenType};
+use crate::parser::expression::is_expression;
 
 pub fn parse_as_number<T: FromStr>(s: &str) -> Option<T> {
     if let Ok(number) = s.parse::<T>() {
@@ -36,39 +40,53 @@ fn sequence_handing(name: FunName, tokens: &Vec<Token>, node: &mut ASTNode) {
     }
 }
 
-fn is_expression(token: &Token) -> Option<&str> {
-    // expression: procudure query literal
-    // operator
-    match &token.token_type {
-        TokenType::Invalid => {
-            panic!("not a expression");
-        }
-        TokenType::Keyword(key) => {
-            match key {
-                lexer::keyword::Keyword::EQ => Some(&token.souce),
-                lexer::keyword::Keyword::NE => Some(&token.souce),
-                lexer::keyword::Keyword::GT => Some(&token.souce),
-                lexer::keyword::Keyword::LT => Some(&token.souce),
-                lexer::keyword::Keyword::AND => Some(&token.souce),
-                lexer::keyword::Keyword::OR => Some(&token.souce),
-                lexer::keyword::Keyword::Plus => Some(&token.souce),
-                lexer::keyword::Keyword::Minus => Some(&token.souce),
-                lexer::keyword::Keyword::Multipliy => Some(&token.souce),
-                lexer::keyword::Keyword::Divide => Some(&token.souce),
-                _ => {
-                    // panic!("unknown key");
-                    None
+fn plus_and_handling(tokens: &Vec<Token>, node: &mut ASTNode) {
+    assert!(tokens.len() >= 2 && tokens[1].token_type == TokenType::Variable);
+    match node {
+        ASTNode::Sequence(vec) => {
+            let mut joined_string = String::new();
+
+            for i in 2..tokens.len() {
+                if let Some(str) = is_expression(&tokens[i]) {
+                    if i != 2 {
+                        joined_string.push(' ');
+                    }
+                    joined_string.push_str(str);
+                } else {
+                    panic!("not a expresssion");
                 }
             }
+
+            vec.push(ASTNode::PlusAnd(tokens[1].souce.to_string(), joined_string));
         }
-        TokenType::Float(f) => Some(f),
-        TokenType::Variable => None,
-        TokenType::Procedure => Some(&token.souce),
-        TokenType::Query(_) => Some(&token.souce),
-        TokenType::LRrace => None,
-        TokenType::RBrace => None,
-        TokenType::LSBracket => None,
-        TokenType::RSBracket => None,
+        _ => {
+            panic!("Attempted to push into a non-Sequence variant of ASTNode");
+        }
+    }
+}
+
+fn define_handing(tokens: &Vec<Token>, node: &mut ASTNode) {
+    assert!(tokens.len() >= 2 && tokens[1].token_type == TokenType::Variable);
+    match node {
+        ASTNode::Sequence(vec) => {
+            let mut joined_string = String::new();
+
+            for i in 2..tokens.len() {
+                if let Some(str) = is_expression(&tokens[i]) {
+                    if i != 2 {
+                        joined_string.push(' ');
+                    }
+                    joined_string.push_str(str);
+                } else {
+                    panic!("not a expresssion");
+                }
+            }
+
+            vec.push(ASTNode::Define(tokens[1].souce.to_string(), joined_string));
+        }
+        _ => {
+            panic!("Attempted to push into a non-Sequence variant of ASTNode");
+        }
     }
 }
 
@@ -98,7 +116,7 @@ impl<'a> Parser<'a> {
                 self.token_source.get_current_line_number(),
                 tokens
             );
-            Parser::handle_Token(tokens, &mut self.root);
+            Parser::handle_token(tokens, &mut self.root);
         }
 
         loop {
@@ -109,7 +127,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn handle_Token(tokens: Vec<Token>, node: &mut ASTNode) {
+    fn handle_token(tokens: Vec<Token>, node: &mut ASTNode) {
         match &tokens[0].token_type {
             TokenType::Invalid => {
                 panic!("unknow error, {}", tokens[0].souce);
@@ -159,8 +177,8 @@ impl<'a> Parser<'a> {
                     sequence_handing(FunName::set_y_coordinate, &tokens, node)
                 }
 
-                lexer::keyword::Keyword::MAKE => todo!(),
-                lexer::keyword::Keyword::ADDASSIGN => todo!(),
+                lexer::keyword::Keyword::MAKE => define_handing(&tokens, node),
+                lexer::keyword::Keyword::ADDASSIGN => plus_and_handling(&tokens, node),
                 lexer::keyword::Keyword::IF => todo!(),
                 lexer::keyword::Keyword::WHILE => todo!(),
                 lexer::keyword::Keyword::EQ => todo!(),

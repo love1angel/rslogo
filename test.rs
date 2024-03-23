@@ -1,14 +1,21 @@
+use regex::Regex;
+
 fn main() {
-    let characters = vec!['a', 'b', 'c', 'd', 'e'];
-    let mut joined_string = String::new();
-
-    for (index, &character) in characters.iter().enumerate() {
-        if index != 0 {
-            joined_string.push(' '); // 添加空格分隔符
-        }
-        joined_string.push(character); // 将字符添加到字符串中
+    let expr = "\"hello";
+    if let Some(()) = is_variable(&expr) {
+        println!("111");
     }
-
-    println!("{}", joined_string);
 }
 
+pub fn is_variable(s: &str) -> Option<()> {
+    let re = Regex::new(r#"^"[a-zA-Z_][a-zA-Z0-9_]*"$"#).unwrap();
+
+    if let Some(_) = keyword::is_keyword(s) {
+        return None;
+    }
+    if re.is_match(s) {
+        return Some(());
+    }
+
+    None
+}
