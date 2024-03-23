@@ -1,0 +1,2 @@
+1_10_too_many_args_2_err.lg
+目前显示not f32，因为我把后面当成表达式处理

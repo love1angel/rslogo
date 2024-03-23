@@ -20,7 +20,7 @@
                 }
             },
             "args": [
-                "/root/rslogo/logo_examples/1_01_setpencolor.lg",
+                "/root/rslogo/logo_examples/1_13_wrong_type_err.lg",
                 "/root/rslogo/test.png",
                 "100",
                 "100"

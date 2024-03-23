@@ -71,7 +71,6 @@ impl Executor for Turtle {
     }
 
     fn back(&mut self, pixel: Pixel) {
-        println!("turtle back: {pixel}");
         self.foreward(-pixel);
     }
 
@@ -86,7 +85,6 @@ impl Executor for Turtle {
     }
 
     fn right(&mut self, pixel: Pixel) {
-        println!("turtle right: {pixel}");
         self.left(-pixel);
     }
 
