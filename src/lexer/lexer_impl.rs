@@ -47,6 +47,10 @@ impl Lexer for LexerImpl {
 
                 if words.is_empty() {
                     self.line_number = self.line_number + 1;
+                    if self.line_number == 22 {
+                        // test
+                        println!("11");
+                    }
                     self.next_line_token()
                 } else {
                     if is_comment(&words[0].souce.as_str()) {
@@ -103,7 +107,7 @@ impl LexerImpl {
                 }
 
                 if let Some(_) = procedure::is_procedure(&s) {
-                    return Token::new(s.chars().skip(1).collect(), TokenType::Procedure);
+                    return Token::new(s, TokenType::Procedure);
                 }
             }
         }

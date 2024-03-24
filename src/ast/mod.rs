@@ -51,7 +51,7 @@ pub enum ASTNode {
     PlusAnd(String, String),
     Define(String, String),
     // literal queries
-    Expersion(Vec<ASTNode>),
+    Expersion(String),
     If(Box<ASTNode>, Vec<ASTNode>),
-    While(Box<ASTNode>, Box<ASTNode>),
+    While(Box<ASTNode>, Vec<ASTNode>),
 }

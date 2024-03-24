@@ -3,7 +3,7 @@ mod executor;
 mod lexer;
 mod parser;
 
-use std::f32::consts::E;
+use std::arch::x86_64;
 
 use ast::{ASTNode, FunName};
 use clap::Parser as clapParser;
@@ -20,8 +20,6 @@ struct Args {
 
     /// Height
     height: u32,
-
-    /// Width
     width: u32,
 }
 
@@ -97,7 +95,7 @@ impl Manager {
                 FunName::set_color => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        println!("{:?}", args);
+                        // println!("{:?}", args);
                         if let Some(v) = self.evaluate_prefix(&args[0], executor) {
                             executor.set_color(v as u32);
                         } else {
@@ -175,9 +173,40 @@ impl Manager {
                     panic!("failed to obtain expression val");
                 }
             }
-            _ => {
-                panic!("Attempted to push into a non-Sequence variant of ASTNode");
+            ASTNode::If(expression, block) => {
+                if let ASTNode::Expersion(str) = &mut **expression {
+                    // 在这里处理 expression 是 Expersion 的情况
+                    if let Some(val) = self.evaluate_prefix(&str, executor) {
+                        if val != 0.0 {
+                            // 执行 IF 语句块
+                            for statement in block {
+                                self.dfs(statement, executor);
+                            }
+                        }
+                    }
+                } else {
+                    panic!("if doesn't meet expression");
+                }
             }
+            ASTNode::While(expression, block) => {
+                if let ASTNode::Expersion(str) = &mut **expression {
+                    loop {
+                        if let Some(val) = self.evaluate_prefix(&str, executor) {
+                            if val != 0.0 {
+                                // 执行 IF 语句块
+                                for statement in &mut *block {
+                                    self.dfs(statement, executor);
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    panic!("if doesn't meet expression");
+                }
+            }
+
             _ => {
                 panic!("Attempted to push into a non-Sequence variant of ASTNode");
             }
@@ -186,7 +215,7 @@ impl Manager {
 
     pub fn get_variable_val(&self, name: &str) -> Option<f32> {
         for (k, v) in &self.variables {
-            if k == name {
+            if k == &name[1..] {
                 if let Some(v) = parse_as_number::<f32>(v) {
                     return Some(v);
                 } else {
