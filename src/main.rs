@@ -3,10 +3,10 @@ mod executor;
 mod lexer;
 mod parser;
 
-use std::arch::x86_64;
+use std::{arch::x86_64, thread::sleep};
 
-use ast::{ASTNode, FunName};
-use clap::Parser as clapParser;
+use ast::{unmangling_fn_name, ASTNode, FunName};
+use clap::{builder::Str, Parser as clapParser};
 
 use crate::parser::parse_as_number;
 
@@ -25,20 +25,28 @@ struct Args {
 
 struct Manager {
     variables: std::collections::HashMap<String, String>,
+
+    pub func_vars: std::collections::HashMap<String, Vec<String>>,
 }
 
 impl Manager {
     pub fn new() -> Self {
         Self {
             variables: std::collections::HashMap::new(),
+            func_vars: std::collections::HashMap::new(),
         }
     }
 
-    fn dfs(&mut self, root: &mut ASTNode, executor: &mut Box<dyn executor::Executor>) {
+    fn dfs(
+        &mut self,
+        root: &ASTNode,
+        executor: &mut Box<dyn executor::Executor>,
+        runtime: &std::collections::HashMap<String, Vec<ASTNode>>,
+    ) {
         match root {
             ASTNode::Sequence(root) => {
                 for node in root {
-                    self.dfs(node, executor);
+                    self.dfs(node, executor, runtime);
                 }
             }
             ASTNode::FunctionCall(FunName, args) => match FunName {
@@ -47,7 +55,8 @@ impl Manager {
                 FunName::foreward => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.foreward(v);
                         } else {
                             panic!("not f32");
@@ -59,7 +68,8 @@ impl Manager {
                 FunName::back => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.back(v);
                         } else {
                             panic!("not f32");
@@ -71,7 +81,9 @@ impl Manager {
                 FunName::left => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack: Vec<f32> = Vec::new();
+
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.left(v);
                         } else {
                             panic!("not f32");
@@ -83,7 +95,8 @@ impl Manager {
                 FunName::right => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.right(v);
                         } else {
                             panic!("not f32");
@@ -96,7 +109,8 @@ impl Manager {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
                         // println!("{:?}", args);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.set_color(v as u32);
                         } else {
                             panic!("not u32");
@@ -108,7 +122,8 @@ impl Manager {
                 FunName::turn => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.turn(v as i32);
                         } else {
                             panic!("not i32");
@@ -120,7 +135,8 @@ impl Manager {
                 FunName::set_heading => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.set_heading(v as i32);
                         } else {
                             panic!("not i32");
@@ -132,7 +148,8 @@ impl Manager {
                 FunName::set_x_coordinate => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.set_x_coordinate(v);
                         } else {
                             panic!("not f32");
@@ -144,7 +161,8 @@ impl Manager {
                 FunName::set_y_coordinate => {
                     if let Some(args) = args {
                         assert!(args.len() == 1);
-                        if let Some(v) = self.evaluate_prefix(&args[0], executor) {
+                        let mut stack: Vec<f32> = Vec::new();
+                        if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
                             executor.set_y_coordinate(v);
                         } else {
                             panic!("not f32");
@@ -155,14 +173,18 @@ impl Manager {
                 }
             },
             ASTNode::Define(name, expressions) => {
-                if let Some(v) = self.evaluate_prefix(expressions, executor) {
+                let mut stack: Vec<f32> = Vec::new();
+
+                if let Some(v) = self.evaluate_prefix(&mut stack, expressions, executor) {
                     self.variables.insert(name.clone(), v.to_string());
                 } else {
                     panic!("failed to obtain expression val");
                 }
             }
             ASTNode::PlusAnd(name, expressions) => {
-                if let Some(v) = self.evaluate_prefix(expressions, executor) {
+                let mut stack: Vec<f32> = Vec::new();
+
+                if let Some(v) = self.evaluate_prefix(&mut stack, expressions, executor) {
                     if let Some(old) = self.variables.get(name) {
                         let old = parse_as_number::<f32>(old).expect("error parse");
                         self.variables.insert(name.clone(), (v + old).to_string());
@@ -174,13 +196,15 @@ impl Manager {
                 }
             }
             ASTNode::If(expression, block) => {
-                if let ASTNode::Expersion(str) = &mut **expression {
+                if let ASTNode::Expersion(str) = &**expression {
                     // 在这里处理 expression 是 Expersion 的情况
-                    if let Some(val) = self.evaluate_prefix(&str, executor) {
+                    let mut stack: Vec<f32> = Vec::new();
+
+                    if let Some(val) = self.evaluate_prefix(&mut stack, &str, executor) {
                         if val != 0.0 {
                             // 执行 IF 语句块
                             for statement in block {
-                                self.dfs(statement, executor);
+                                self.dfs(statement, executor, runtime);
                             }
                         }
                     }
@@ -189,13 +213,15 @@ impl Manager {
                 }
             }
             ASTNode::While(expression, block) => {
-                if let ASTNode::Expersion(str) = &mut **expression {
+                if let ASTNode::Expersion(str) = &**expression {
                     loop {
-                        if let Some(val) = self.evaluate_prefix(&str, executor) {
+                        let mut stack: Vec<f32> = Vec::new();
+
+                        if let Some(val) = self.evaluate_prefix(&mut stack, &str, executor) {
                             if val != 0.0 {
                                 // 执行 IF 语句块
-                                for statement in &mut *block {
-                                    self.dfs(statement, executor);
+                                for statement in &*block {
+                                    self.dfs(statement, executor, runtime);
                                 }
                             } else {
                                 break;
@@ -206,7 +232,64 @@ impl Manager {
                     panic!("if doesn't meet expression");
                 }
             }
+            ASTNode::CustomFunction(func_name, expression) => {
+                let argument_size = self.func_vars[func_name].len();
 
+                if argument_size == 0 {
+                    if let None = expression {
+                        let statements = &runtime[func_name];
+                        for node in statements {
+                            self.dfs(&node, executor, runtime);
+                        }
+                    } else {
+                        panic!("no arguments");
+                    }
+                } else {
+                    if let Some(expression) = expression {
+                        // calcatue parameter value;
+                        let mut stack: Vec<f32> = Vec::new();
+                        if let Some(val) = self.evaluate_prefix(&mut stack, &expression, executor) {
+                            stack.push(val);
+                        } else {
+                            panic!("no enough para");
+                        }
+
+                        if stack.len() != argument_size {
+                            panic!("no enough parameter value");
+                        }
+
+                        //
+                        let mut odd: std::collections::HashMap<String, String> =
+                            std::collections::HashMap::new(); // arguments
+
+                        for var_name in self.func_vars[func_name].iter().rev() {
+                            if self.variables.contains_key(var_name) {
+                                odd.insert(
+                                    var_name.clone(),
+                                    self.variables.get(var_name).expect("unreach").clone(),
+                                );
+                            }
+                            self.variables.insert(
+                                var_name.clone(),
+                                stack.pop().expect("unreach").to_string(),
+                            );
+                        }
+                        let statements = &runtime[func_name];
+                        for node in statements {
+                            self.dfs(&node, executor, runtime);
+                        }
+
+                        for var_name in self.func_vars[func_name].iter().rev() {
+                            if odd.contains_key(var_name) {
+                                self.variables
+                                    .insert(var_name.clone(), odd[var_name].clone());
+                            } else {
+                                self.variables.remove(var_name);
+                            }
+                        }
+                    }
+                }
+            }
             _ => {
                 panic!("Attempted to push into a non-Sequence variant of ASTNode");
             }
@@ -228,11 +311,10 @@ impl Manager {
 
     pub fn evaluate_prefix(
         &self,
+        stack: &mut Vec<f32>,
         expressions: &str,
         executor: &mut Box<dyn executor::Executor>,
     ) -> Option<f32> {
-        let mut stack: Vec<f32> = Vec::new();
-
         for expression in expressions.split_whitespace().into_iter().rev() {
             match expression {
                 // query
@@ -353,13 +435,17 @@ fn main() -> Result<(), ()> {
         }
     }
 
+    let mut manger: Manager = Manager::new();
+
     let mut lexer = lexer::LexerFactory::create_lexer(&file_path);
-    let mut parser = parser::Parser::new(&mut lexer);
+    let mut function_table: std::collections::HashMap<String, Vec<ASTNode>> =
+        std::collections::HashMap::new();
+    let mut parser = parser::Parser::new(&mut lexer, &mut manger, &mut function_table);
     parser.run();
-    let mut root: &mut ASTNode = parser.get_root();
+
+    let root: ASTNode = parser.get_root();
     let mut executor = executor::ExecutorFactory::create_turtle(width, height, image_path);
 
-    let mut manger: Manager = Manager::new();
-    manger.dfs(root, &mut executor);
+    manger.dfs(&root, &mut executor, &function_table);
     Ok(())
 }

@@ -3,10 +3,13 @@ mod expression;
 
 use std::str::FromStr;
 
-use crate::ast::{ASTNode, FunName};
+use crate::ast::{
+    mangling_fn_name, mangling_fn_name_without_argument, mangling_fn_var_name, ASTNode, FunName,
+};
 use crate::lexer::variable::is_variable;
 use crate::lexer::{self, Lexer, Token, TokenType};
 use crate::parser::expression::is_expression;
+use crate::Manager;
 
 pub fn parse_as_number<T: FromStr>(s: &str) -> Option<T> {
     if let Ok(number) = s.parse::<T>() {
@@ -67,34 +70,41 @@ fn define_handing(tokens: &Vec<Token>) -> ASTNode {
     ASTNode::Define(tokens[1].souce.to_string(), joined_string)
 }
 
-pub struct Parser<'a> {
+pub struct Parser<'a, 'b>
+where
+    'a: 'b,
+{
     depth: Vec<usize>,
     root: crate::parser::ASTNode,
-    current: Vec<Token>,
     token_source: &'a mut Box<dyn Lexer>,
+    runtime: &'b mut Manager,
+    function_table: &'b mut std::collections::HashMap<String, Vec<ASTNode>>,
 }
 
-impl<'a> Parser<'a> {
-    pub fn new(token_source: &'a mut Box<dyn Lexer>) -> Self {
+impl<'a, 'b> Parser<'a, 'b>
+where
+    'a: 'b,
+{
+    pub fn new(
+        token_source: &'a mut Box<dyn Lexer>,
+        runtime: &'b mut Manager,
+        function_table: &'b mut std::collections::HashMap<String, Vec<ASTNode>>,
+    ) -> Self {
         Parser {
             depth: Vec::new(),
             root: ASTNode::Sequence(Vec::new()),
-            current: Vec::new(),
             token_source,
+            runtime,
+            function_table,
         }
     }
 
-    pub fn get_root(&mut self) -> &mut ASTNode {
-        &mut self.root
+    pub fn get_root(self) -> ASTNode {
+        self.root
     }
 
     pub fn run(&mut self) {
         while let Some(tokens) = self.token_source.next_line_token() {
-            println!(
-                "line: {}, Token are: {:?}",
-                self.token_source.get_current_line_number(),
-                tokens
-            );
             let new_node = self.handle_token(tokens);
             match &mut self.root {
                 ASTNode::Sequence(vec) => {
@@ -110,7 +120,38 @@ impl<'a> Parser<'a> {
     fn handle_token(&mut self, tokens: Vec<Token>) -> ASTNode {
         match &tokens[0].token_type {
             TokenType::Invalid => {
-                panic!("unknow error, {}", tokens[0].souce);
+                // maybe user defined function
+                // compile time resolve
+                if self.runtime.func_vars.contains_key(&tokens[0].souce) {
+                    let argument_size = self
+                        .runtime
+                        .func_vars
+                        .get(&tokens[0].souce)
+                        .expect("impossible")
+                        .len();
+                    if argument_size == 0 {
+                        self.handle_user_defined_fn_call(&tokens[0].souce, &argument_size, None)
+                    } else {
+                        let mut joined_string = String::new();
+                        for i in 1..tokens.len() {
+                            if let Some(str) = is_expression(&tokens[i]) {
+                                if i != 1 {
+                                    joined_string.push(' ');
+                                }
+                                joined_string.push_str(str);
+                            } else {
+                                panic!("not a expresssion");
+                            }
+                        }
+                        self.handle_user_defined_fn_call(
+                            &tokens[0].souce,
+                            &argument_size,
+                            Some(joined_string),
+                        )
+                    }
+                } else {
+                    panic!("unknow error, {}", tokens[0].souce);
+                }
             }
             TokenType::Keyword(key) => match key {
                 lexer::keyword::Keyword::TRUE => todo!(),
@@ -167,7 +208,7 @@ impl<'a> Parser<'a> {
                 lexer::keyword::Keyword::Minus => todo!(),
                 lexer::keyword::Keyword::Multipliy => todo!(),
                 lexer::keyword::Keyword::Divide => todo!(),
-                lexer::keyword::Keyword::FBegin => todo!(),
+                lexer::keyword::Keyword::FBegin => self.parse_function(&tokens),
                 lexer::keyword::Keyword::FEnd => todo!(),
             },
             TokenType::Float(_) => todo!(),
@@ -259,5 +300,51 @@ impl<'a> Parser<'a> {
             }
         }
         ASTNode::Expersion(joined_string)
+    }
+
+    // @todo
+    pub fn handle_user_defined_fn_call(
+        &mut self,
+        name: &str,
+        argument_size: &usize,
+        expression: Option<String>,
+    ) -> ASTNode {
+        ASTNode::CustomFunction(name.clone().to_owned(), expression)
+    }
+
+    pub fn parse_function(&mut self, tokens: &Vec<Token>) -> ASTNode {
+        assert!(tokens.len() >= 2);
+
+        let mut block = Vec::new();
+        let mut size = 0;
+        let mut vars_name = Vec::new();
+        for idx in 2..tokens.len() {
+            if tokens[idx].token_type != TokenType::Variable {
+                panic!("argumentnot a variable fine");
+            } else {
+                vars_name.push(tokens[idx].souce.clone());
+                size = size + 1;
+            }
+        }
+
+        let func_name = &tokens[1].souce;
+        self.runtime.func_vars.insert(func_name.clone(), vars_name);
+
+        loop {
+            if let Some(tokens) = self.token_source.next_line_token() {
+                if tokens.len() == 1
+                    && tokens[0].token_type == TokenType::Keyword(lexer::keyword::Keyword::FEnd)
+                {
+                    break;
+                } else {
+                    block.push(self.handle_token(tokens));
+                }
+            } else {
+                panic!("not found function define end");
+            }
+        }
+        self.function_table.insert(func_name.to_string(), block);
+
+        ASTNode::Sequence(Vec::new())
     }
 }

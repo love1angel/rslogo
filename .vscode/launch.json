@@ -20,8 +20,8 @@
                 }
             },
             "args": [
-                "/root/rslogo/logo_examples/4_11_final_test.lg",
-                "/root/rslogo/test.png",
+                "/root/rslogo/logo_examples/5_05_star.lgg",
+                "${workspaceFolder}/test.png",
                 "100",
                 "100"
             ],
