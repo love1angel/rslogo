@@ -260,7 +260,7 @@ impl Manager {
                         let mut odd: std::collections::HashMap<String, String> =
                             std::collections::HashMap::new(); // arguments
 
-                        for var_name in self.func_vars[func_name].iter().rev() {
+                        for var_name in self.func_vars[func_name].iter() {
                             if self.variables.contains_key(var_name) {
                                 odd.insert(
                                     var_name.clone(),
@@ -336,14 +336,14 @@ impl Manager {
                 }
                 "GT" => {
                     if let (Some(op1), Some(op2)) = (stack.pop(), stack.pop()) {
-                        stack.push(if op1 >= op2 { 1.0 } else { 0.0 });
+                        stack.push(if op1 > op2 { 1.0 } else { 0.0 });
                     } else {
                         panic!("no enough opcode");
                     }
                 }
                 "LT" => {
                     if let (Some(op1), Some(op2)) = (stack.pop(), stack.pop()) {
-                        stack.push(if op1 <= op2 { 1.0 } else { 0.0 });
+                        stack.push(if op1 < op2 { 1.0 } else { 0.0 });
                     } else {
                         panic!("no enough opcode");
                     }

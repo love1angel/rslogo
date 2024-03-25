@@ -90,12 +90,9 @@ impl Executor for Turtle {
 
     fn turn(&mut self, degree: Degree) {
         println!("turtle turn: {degree}");
-        if degree < 0 {
-            self.direction = self.direction - degree;
-        } else {
-            self.direction = self.direction + degree;
-        }
+        self.direction = self.direction + degree;
     }
+
     fn set_heading(&mut self, degree: Degree) {
         println!("turtle set_heading: {degree}");
         self.direction = degree;
