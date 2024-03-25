@@ -1,5 +1,3 @@
-use crate::ast::ASTNode;
-
-struct condition_check {
-    condition: String,
-}
+// struct ConditionCheck {
+//     condition: String,
+// }

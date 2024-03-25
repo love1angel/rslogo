@@ -3,13 +3,11 @@ mod expression;
 
 use std::str::FromStr;
 
-use crate::ast::{
-    mangling_fn_name, mangling_fn_name_without_argument, mangling_fn_var_name, ASTNode, FunName,
-};
-use crate::lexer::variable::is_variable;
+use crate::ast::{ASTNode, FunName};
+use crate::error::fatal_error;
 use crate::lexer::{self, Lexer, Token, TokenType};
 use crate::parser::expression::is_expression;
-use crate::Manager;
+use crate::{error, Manager};
 
 pub fn parse_as_number<T: FromStr>(s: &str) -> Option<T> {
     if let Ok(number) = s.parse::<T>() {
@@ -20,6 +18,9 @@ pub fn parse_as_number<T: FromStr>(s: &str) -> Option<T> {
 }
 
 fn sequence_handing(name: FunName, tokens: &Vec<Token>) -> ASTNode {
+    if tokens.len() < 2 {
+        fatal_error(error::LogoError::NoEnoughArguments(tokens[0].souce.clone()));
+    }
     assert!(tokens.len() >= 2);
     let mut joined_string = String::new();
 
@@ -30,6 +31,7 @@ fn sequence_handing(name: FunName, tokens: &Vec<Token>) -> ASTNode {
             }
             joined_string.push_str(str);
         } else {
+            fatal_error(error::LogoError::NotAexpression(tokens[i].souce.clone()));
             panic!("not a expresssion");
         }
     }
@@ -37,7 +39,12 @@ fn sequence_handing(name: FunName, tokens: &Vec<Token>) -> ASTNode {
 }
 
 fn plus_and_handling(tokens: &Vec<Token>) -> ASTNode {
-    assert!(tokens.len() >= 2 && tokens[1].token_type == TokenType::Variable);
+    if tokens.len() < 2 {
+        fatal_error(error::LogoError::NoEnoughArguments(tokens[0].souce.clone()));
+    }
+    if tokens[1].token_type != TokenType::Variable {
+        fatal_error(error::LogoError::UnDefinedVariable(tokens[1].souce.clone()));
+    }
     let mut joined_string = String::new();
 
     for i in 2..tokens.len() {
@@ -158,29 +165,30 @@ where
                 lexer::keyword::Keyword::FALSE => todo!(),
                 lexer::keyword::Keyword::PENUP => {
                     assert!(tokens.len() == 1);
-                    ASTNode::FunctionCall(FunName::pen_up, None)
+                    ASTNode::FunctionCall(FunName::PenUp, None)
                 }
                 lexer::keyword::Keyword::PENDOWN => {
-                    assert!(tokens.len() == 1);
-                    ASTNode::FunctionCall(FunName::pen_down, None)
+                    if tokens.len() != 1 {
+                        error::fatal_error(error::LogoError::TooManyArguments(
+                            self.token_source.get_current_line_number(),
+                            tokens[0].souce.clone(),
+                        ));
+                    }
+                    ASTNode::FunctionCall(FunName::PenDown, None)
                 }
-                lexer::keyword::Keyword::FORWARD => sequence_handing(FunName::foreward, &tokens),
-                lexer::keyword::Keyword::BACK => sequence_handing(FunName::back, &tokens),
-                lexer::keyword::Keyword::LEFT => sequence_handing(FunName::left, &tokens),
-                lexer::keyword::Keyword::RIGHT => sequence_handing(FunName::right, &tokens),
+                lexer::keyword::Keyword::FORWARD => sequence_handing(FunName::Foreward, &tokens),
+                lexer::keyword::Keyword::BACK => sequence_handing(FunName::Back, &tokens),
+                lexer::keyword::Keyword::LEFT => sequence_handing(FunName::Left, &tokens),
+                lexer::keyword::Keyword::RIGHT => sequence_handing(FunName::Right, &tokens),
                 lexer::keyword::Keyword::SETPENCOLOR => {
-                    sequence_handing(FunName::set_color, &tokens)
+                    sequence_handing(FunName::SetColor, &tokens)
                 }
-                lexer::keyword::Keyword::TURN => sequence_handing(FunName::turn, &tokens),
+                lexer::keyword::Keyword::TURN => sequence_handing(FunName::Turn, &tokens),
                 lexer::keyword::Keyword::SETHEADING => {
-                    sequence_handing(FunName::set_heading, &tokens)
+                    sequence_handing(FunName::SetHeading, &tokens)
                 }
-                lexer::keyword::Keyword::SETX => {
-                    sequence_handing(FunName::set_x_coordinate, &tokens)
-                }
-                lexer::keyword::Keyword::SETY => {
-                    sequence_handing(FunName::set_y_coordinate, &tokens)
-                }
+                lexer::keyword::Keyword::SETX => sequence_handing(FunName::SetXCoordinate, &tokens),
+                lexer::keyword::Keyword::SETY => sequence_handing(FunName::SetYCoordinate, &tokens),
 
                 lexer::keyword::Keyword::MAKE => define_handing(&tokens),
                 lexer::keyword::Keyword::ADDASSIGN => plus_and_handling(&tokens),
@@ -209,7 +217,13 @@ where
                 lexer::keyword::Keyword::Multipliy => todo!(),
                 lexer::keyword::Keyword::Divide => todo!(),
                 lexer::keyword::Keyword::FBegin => self.parse_function(&tokens),
-                lexer::keyword::Keyword::FEnd => todo!(),
+                lexer::keyword::Keyword::FEnd => {
+                    fatal_error(error::LogoError::FunctionDefineFailed(
+                        self.token_source.get_current_line_number(),
+                        "not define a function, but meet END".to_string(),
+                    ));
+                    todo!()
+                }
             },
             TokenType::Float(_) => todo!(),
             TokenType::Variable => todo!(),
@@ -258,6 +272,10 @@ where
                     block.push(expression);
                 }
             } else {
+                fatal_error(error::LogoError::UnvalidIfOrWhile(
+                    self.token_source.get_current_line_number(),
+                    "not meet ]".to_string(),
+                ));
                 panic!("not found ]");
             }
         }
@@ -266,6 +284,10 @@ where
 
     pub fn parse_if_while(&mut self, tokens: &Vec<Token>) -> Option<ASTNode> {
         if tokens[tokens.len() - 1].token_type != TokenType::LSBracket {
+            fatal_error(error::LogoError::UnvalidIfOrWhile(
+                self.token_source.get_current_line_number(),
+                "not meet [".to_string(),
+            ));
             panic!("unvalid if or while");
         }
         // assert!()
@@ -306,10 +328,10 @@ where
     pub fn handle_user_defined_fn_call(
         &mut self,
         name: &str,
-        argument_size: &usize,
+        _: &usize,
         expression: Option<String>,
     ) -> ASTNode {
-        ASTNode::CustomFunction(name.clone().to_owned(), expression)
+        ASTNode::CustomFunction(name.to_owned(), expression)
     }
 
     pub fn parse_function(&mut self, tokens: &Vec<Token>) -> ASTNode {
@@ -340,7 +362,10 @@ where
                     block.push(self.handle_token(tokens));
                 }
             } else {
-                panic!("not found function define end");
+                fatal_error(error::LogoError::FunctionDefineFailed(
+                    self.token_source.get_current_line_number(),
+                    "not found function define END".to_string(),
+                ));
             }
         }
         self.function_table.insert(func_name.to_string(), block);

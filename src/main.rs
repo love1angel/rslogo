@@ -4,8 +4,8 @@ mod executor;
 mod lexer;
 mod parser;
 
-use ast::{unmangling_fn_name, ASTNode, FunName};
-use clap::{builder::Str, Parser as clapParser};
+use ast::{ASTNode, FunName};
+use clap::Parser as clapParser;
 
 use crate::{error::fatal_error, error::LogoError, parser::parse_as_number};
 
@@ -48,10 +48,10 @@ impl Manager {
                     self.dfs(node, executor, runtime);
                 }
             }
-            ASTNode::FunctionCall(FunName, args) => match FunName {
-                FunName::pen_up => executor.pen_up(),
-                FunName::pen_down => executor.pen_down(),
-                FunName::foreward => {
+            ASTNode::FunctionCall(fun_name, args) => match fun_name {
+                FunName::PenUp => executor.pen_up(),
+                FunName::PenDown => executor.pen_down(),
+                FunName::Foreward => {
                     if let Some(args) = args {
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
@@ -61,7 +61,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(2.clone(), str));
+                                fatal_error(LogoError::NotAexpression(str));
                             }
                             assert!(args.len() == 1);
                             executor.foreward(v);
@@ -72,11 +72,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::back => {
+                FunName::Back => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.back(v);
                         } else {
                             panic!("not f32");
@@ -85,12 +93,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::left => {
+                FunName::Left => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack: Vec<f32> = Vec::new();
-
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.left(v);
                         } else {
                             panic!("not f32");
@@ -99,11 +114,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::right => {
+                FunName::Right => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.right(v);
                         } else {
                             panic!("not f32");
@@ -112,12 +135,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::set_color => {
+                FunName::SetColor => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
-                        // println!("{:?}", args);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.set_color(v as u32);
                         } else {
                             panic!("not u32");
@@ -126,11 +156,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::turn => {
+                FunName::Turn => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.turn(v as i32);
                         } else {
                             panic!("not i32");
@@ -139,11 +177,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::set_heading => {
+                FunName::SetHeading => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.set_heading(v as i32);
                         } else {
                             panic!("not i32");
@@ -152,11 +198,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::set_x_coordinate => {
+                FunName::SetXCoordinate => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.set_x_coordinate(v);
                         } else {
                             panic!("not f32");
@@ -165,11 +219,19 @@ impl Manager {
                         panic!("few argument");
                     }
                 }
-                FunName::set_y_coordinate => {
+                FunName::SetYCoordinate => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack: Vec<f32> = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(str));
+                            }
+                            assert!(args.len() == 1);
                             executor.set_y_coordinate(v);
                         } else {
                             panic!("not f32");
@@ -409,11 +471,12 @@ impl Manager {
                     if let Some(val) = parse_as_number::<f32>(expression) {
                         stack.push(val);
                     } else {
-                        println!("variable name: {}", expression);
+                        // println!("variable name: {}", expression);
                         if let Some(v) = self.get_variable_val(expression) {
                             stack.push(v);
                         } else {
                             // not defined variable;
+                            fatal_error(LogoError::UnDefinedVariable(expression.to_string()));
                             debug_assert!(false);
                         }
                     }

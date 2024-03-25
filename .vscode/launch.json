@@ -20,7 +20,7 @@
                 }
             },
             "args": [
-                "${workspaceFolder}/logo_examples/1_10_too_many_args_2_err.lg",
+                "${workspaceFolder}/logo_examples/5_04_invalid_end_err.lg",
                 "${workspaceFolder}/test.png",
                 "200",
                 "200"

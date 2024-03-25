@@ -1,5 +1,3 @@
-use clap::builder::Str;
-
 use crate::lexer::keyword;
 use crate::lexer::query;
 

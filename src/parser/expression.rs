@@ -1,10 +1,16 @@
-use crate::lexer::{self, Token, TokenType};
+use crate::{
+    error::fatal_error,
+    lexer::{self, Token, TokenType},
+};
 
 pub fn is_expression(token: &Token) -> Option<&str> {
     // expression: procudure query literal
     // operator
     match &token.token_type {
         TokenType::Invalid => {
+            fatal_error(crate::error::LogoError::UnExpectedToken(
+                token.souce.clone(),
+            ));
             panic!("not a expression");
         }
         TokenType::Keyword(key) => {

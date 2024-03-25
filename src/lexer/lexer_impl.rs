@@ -45,11 +45,11 @@ impl Lexer for LexerImpl {
                     .map(Self::distinguish)
                     .collect();
 
-                println!(
-                    "line: {}, Token are: {:?}",
-                    self.get_current_line_number(),
-                    words
-                );
+                // println!(
+                //     "line: {}, Token are: {:?}",
+                //     self.get_current_line_number(),
+                //     words
+                // );
                 if words.is_empty() {
                     self.line_number = self.line_number + 1;
                     if self.line_number == 22 {
