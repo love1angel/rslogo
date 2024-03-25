@@ -1,4 +1,5 @@
 mod ast;
+mod error;
 mod executor;
 mod lexer;
 mod parser;
@@ -6,7 +7,7 @@ mod parser;
 use ast::{unmangling_fn_name, ASTNode, FunName};
 use clap::{builder::Str, Parser as clapParser};
 
-use crate::parser::parse_as_number;
+use crate::{error::fatal_error, error::LogoError, parser::parse_as_number};
 
 #[derive(clapParser)]
 struct Args {
@@ -52,9 +53,17 @@ impl Manager {
                 FunName::pen_down => executor.pen_down(),
                 FunName::foreward => {
                     if let Some(args) = args {
-                        assert!(args.len() == 1);
                         let mut stack = Vec::new();
                         if let Some(v) = self.evaluate_prefix(&mut stack, &args[0], executor) {
+                            if stack.len() != 0 {
+                                let mut str = String::new();
+                                for i in 0..args.len() {
+                                    str.push_str(&args[i]);
+                                    str.push(' ');
+                                }
+                                fatal_error(LogoError::NotAexpression(2.clone(), str));
+                            }
+                            assert!(args.len() == 1);
                             executor.foreward(v);
                         } else {
                             panic!("not f32");
