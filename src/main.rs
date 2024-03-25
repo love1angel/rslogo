@@ -3,8 +3,6 @@ mod executor;
 mod lexer;
 mod parser;
 
-use std::{arch::x86_64, thread::sleep};
-
 use ast::{unmangling_fn_name, ASTNode, FunName};
 use clap::{builder::Str, Parser as clapParser};
 

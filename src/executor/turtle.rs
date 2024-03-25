@@ -33,16 +33,16 @@ impl Turtle {
         }
     }
 
-    fn draw(&mut self, pixel: Pixel) {
+    fn draw(&mut self, direction: Direction, pixel: Pixel) {
         if self.status == Status::Up {
-            (self.x, self.y) = unsvg::get_end_coordinates(self.x, self.y, self.direction, pixel);
+            (self.x, self.y) = unsvg::get_end_coordinates(self.x, self.y, direction, pixel);
         } else {
             (self.x, self.y) = self
                 .image
                 .draw_simple_line(
                     self.x,
                     self.y,
-                    self.direction,
+                    direction,
                     pixel,
                     unsvg::COLORS[self.color_idx as usize],
                 )
@@ -64,28 +64,21 @@ impl Executor for Turtle {
 
     fn foreward(&mut self, pixel: Pixel) {
         println!("turtle foreward: {pixel}");
-        if pixel < 0.0 {
-            self.direction = self.direction + 180;
-        }
-        self.draw(pixel);
+        self.draw(self.direction + 0, pixel);
     }
 
     fn back(&mut self, pixel: Pixel) {
-        self.foreward(-pixel);
+        println!("turtle back: {pixel}");
+        self.draw(self.direction + 180, pixel);
     }
 
     fn left(&mut self, pixel: Pixel) {
         println!("turtle left: {pixel}");
-        if pixel < 0.0 {
-            self.direction = self.direction + 270;
-        } else {
-            self.direction = self.direction + 90;
-        }
-        self.draw(pixel);
+        self.draw(self.direction + 270, pixel);
     }
 
     fn right(&mut self, pixel: Pixel) {
-        self.left(-pixel);
+        self.draw(self.direction + 90, pixel);
     }
 
     fn set_color(&mut self, color: Color) {
@@ -98,9 +91,9 @@ impl Executor for Turtle {
     fn turn(&mut self, degree: Degree) {
         println!("turtle turn: {degree}");
         if degree < 0 {
-            self.direction = self.direction + degree;
-        } else {
             self.direction = self.direction - degree;
+        } else {
+            self.direction = self.direction + degree;
         }
     }
     fn set_heading(&mut self, degree: Degree) {
