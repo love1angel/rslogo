@@ -1,0 +1,7 @@
+// Greater Than and Conditional
+PENDOWN
+IF GT "10 * "5 "2 [
+   FORWARD "15
+]
+
+

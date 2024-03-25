@@ -1,0 +1,10 @@
+// Equality Check
+PENDOWN
+IF EQ "7 + "2 "5 [
+   FORWARD "25
+]
+IF NE "7 + "2 "5 [
+   BACK "25
+]
+
+

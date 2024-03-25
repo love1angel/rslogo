@@ -1,0 +1,10 @@
+PENDOWN
+MAKE "forwardDist "50
+MAKE "backwardDist "80
+MAKE "dist "10
+ADDASSIGN "forwardDist :dist
+ADDASSIGN "backwardDist "10.5
+FORWARD :forwardDist
+LEFT :forwardDist
+BACK :backwardDist
+RIGHT :backwardDist

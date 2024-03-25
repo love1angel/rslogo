@@ -1,0 +1,7 @@
+PENDOWN
+MAKE "forwardDist "50
+MAKE "backwardDist "80
+FORWARD :forwardDist
+LEFT :forwardDist
+BACK :backwardDist
+RIGHT :backwardDist

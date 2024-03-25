@@ -1,0 +1,6 @@
+// Ensure that the TURN command changes the turtle's heading relatively.
+PENDOWN
+TURN "45
+FORWARD "50
+TURN "135
+FORWARD "50

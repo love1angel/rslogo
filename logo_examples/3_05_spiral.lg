@@ -1,0 +1,24 @@
+MAKE "LOOP "TRUE
+MAKE "DIST "5
+MAKE "COLOR "1
+
+PENDOWN
+
+WHILE EQ :LOOP "TRUE [
+
+      SETPENCOLOR :COLOR
+
+      FORWARD :DIST
+      TURN "90
+
+      ADDASSIGN "DIST "5
+      ADDASSIGN "COLOR "1
+
+      IF EQ XCOR "10 [
+         MAKE "LOOP "FALSE
+      ]
+      IF EQ :COLOR "15 [
+         MAKE "COLOR "1
+      ]
+
+]

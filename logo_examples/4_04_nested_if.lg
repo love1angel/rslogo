@@ -1,0 +1,10 @@
+// Nested IF
+PENDOWN
+IF GT "5 "3 [
+   MAKE "TEST LT "2 "4
+   IF :TEST [
+       FORWARD "5
+    ]
+]
+
+

@@ -1,0 +1,5 @@
+// Make sure the program crashes when ADDASSIGN called
+
+PENDOWN
+ADDASSIGN :nonExtant "10
+LEFT "10

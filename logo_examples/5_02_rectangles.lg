@@ -1,0 +1,28 @@
+TO Box "Side1 "Side2 "Repeat
+   MAKE "BOXINTERNAL_CNT "0
+   WHILE NE :BOXINTERNAL_CNT :Repeat [
+        FORWARD :Side1
+        LEFT :Side2
+        BACK :Side1
+        RIGHT :Side2
+        ADDASSIGN "BOXINTERNAL_CNT "1
+   ]
+END
+
+PENDOWN
+
+MAKE "BOXLINE "2
+
+WHILE LT :BOXLINE "60 [
+      TURN "20
+
+      SETPENCOLOR + COLOR "2
+
+      Box :BOXLINE + :BOXLINE "50 "1
+
+      IF LT "8 COLOR [
+         SETPENCOLOR "2
+      ]
+
+      ADDASSIGN "BOXLINE "2
+]

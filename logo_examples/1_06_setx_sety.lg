@@ -1,0 +1,14 @@
+// Confirm that the SETX and SETY commands position the turtle correctly.
+PENDOWN
+SETX "-10
+SETY "-10
+BACK "5
+RIGHT "5
+BACK "5
+RIGHT "5
+BACK "5
+RIGHT "5
+BACK "5
+RIGHT "5
+BACK "5
+RIGHT "5

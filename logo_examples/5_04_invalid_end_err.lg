@@ -1,0 +1,23 @@
+   FORWARD "1
+   LEFT "1
+   BACK "1
+   RIGHT "1
+END
+
+PENDOWN
+
+MAKE "BOXLINE "2
+
+WHILE LT :BOXLINE "60 [
+      TURN "20
+
+      SETPENCOLOR + COLOR "2
+
+      // Box :BOXLINE
+
+      IF LT "8 COLOR [
+         SETPENCOLOR "2
+      ]
+
+      ADDASSIGN "BOXLINE "2
+]

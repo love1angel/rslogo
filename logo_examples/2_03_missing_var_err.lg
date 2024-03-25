@@ -1,0 +1,8 @@
+// Verify that the LEFT and RIGHT commands turn the turtle as expected.
+
+MAKE "leftDistance "90
+MAKE "rightDistance "45
+LEFT :leftAngle
+FORWARD "50
+RIGHT :rightAngle
+FORWARD "50

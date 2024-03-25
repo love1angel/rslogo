@@ -1,0 +1,13 @@
+// Create a more complex pattern using a combination of commands.
+PENDOWN
+
+SETPENCOLOR "1
+FORWARD "100
+
+TURN "120
+SETPENCOLOR "2
+FORWARD "100
+
+TURN "120
+SETPENCOLOR "3
+FORWARD "100

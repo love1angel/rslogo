@@ -1,0 +1,40 @@
+MAKE "LOOP "TRUE
+MAKE "DIST "5
+
+MAKE "COLOR "2
+MAKE "COLORDELTA "1
+
+MAKE "TOTAL_STEPS "8
+MAKE "NUMSTEPS "0
+
+PENDOWN
+
+WHILE EQ :LOOP "TRUE [
+
+      SETPENCOLOR :COLOR
+      FORWARD :DIST
+      TURN "90
+
+      IF EQ XCOR "10 [
+         MAKE "LOOP "FALSE
+      ]
+
+      IF EQ :NUMSTEPS "8 [
+         IF EQ :COLORDELTA "1 [
+            MAKE "COLORDELTA "-1
+            MAKE "NUMSTEPS "0
+         ]
+      ]
+
+      IF EQ :NUMSTEPS "8 [
+         IF EQ :COLORDELTA "-1 [
+            MAKE "COLORDELTA "1
+         ]
+        MAKE "NUMSTEPS "0
+      ]
+
+      ADDASSIGN "DIST "5
+      ADDASSIGN "COLOR :COLORDELTA
+      ADDASSIGN "NUMSTEPS "1
+
+]

@@ -1,0 +1,10 @@
+// ((3 < 3 + 1) && (9 > 8) || (8 / 2 < 8 / 3)
+MAKE "x OR AND LT "3 + "3 "1 GT "9 "8 LT / "8 "2 / "8 "3
+
+IF :x [
+   PENDOWN
+]
+
+TURN "135
+FORWARD "20
+LEFT "100

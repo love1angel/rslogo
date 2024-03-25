@@ -1,0 +1,22 @@
+PENDOWN
+SETPENCOLOR "1
+MAKE "SIZE "1
+
+WHILE AND GT XCOR "0 GT YCOR "0 [
+WHILE AND GT XCOR "0 GT YCOR "0 [
+TURN "120
+
+      FORWARD :SIZE
+      LEFT "1
+
+      MAKE "SIZE + :SIZE "2
+
+      IF EQ COLOR "15 [
+         IF EQ COLOR "15 [
+            SETPENCOLOR "1
+         ]
+      ]
+
+      SETPENCOLOR + COLOR "1
+]
+]

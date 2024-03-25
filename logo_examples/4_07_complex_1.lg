@@ -1,0 +1,8 @@
+// Complex Conditions
+PENDOWN
+SETPENCOLOR + "3 "4
+IF LT + "3 "4 * "6 "2 [
+   FORWARD "1
+]
+
+

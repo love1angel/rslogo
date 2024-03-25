@@ -1,0 +1,26 @@
+TO BOX "Arg
+   FORWARD :Arg
+   LEFT :Arg
+   BACK :Arg
+   RIGHT :Arg
+END
+
+PENDOWN
+
+TO PENTAGRAM "size
+  MAKE "COUNTER "0
+  WHILE NE :COUNTER "5 [
+    FORWARD :size
+    TURN "144
+    ADDASSIGN "COUNTER "1
+  ]
+END
+
+// Example usage: Draw a pentagram with a size of 100 units
+MAKE "C "0
+WHILE NE :C "200 [
+      TURN "7
+      PENTAGRAM * :C "3
+      ADDASSIGN "C "2
+      SETPENCOLOR "1
+]

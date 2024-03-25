@@ -1,0 +1,8 @@
+// Check if the SETPENCOLOR command changes the pen color correctly.
+PENDOWN
+MAKE "color1 "2
+SETPENCOLOR :color1
+MAKE "color2 "4
+FORWARD "50
+SETPENCOLOR :color2
+FORWARD "50

@@ -1,0 +1,6 @@
+// Check if the SETPENCOLOR command changes the pen color correctly.
+PENDOWN
+SETPENCOLOR "2
+FORWARD "50
+SETPENCOLOR "4
+FORWARD "50

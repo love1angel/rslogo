@@ -1,0 +1,7 @@
+// Logical OR
+PENDOWN
+IF OR GT "5 "10 LT "7 "20 [
+   BACK "10
+]
+
+

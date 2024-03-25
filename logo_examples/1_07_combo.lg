@@ -1,0 +1,8 @@
+// Combine multiple commands to draw a simple shape.
+PENDOWN
+FORWARD "50
+LEFT "50
+TURN "180
+FORWARD "50
+TURN "180
+LEFT "-50

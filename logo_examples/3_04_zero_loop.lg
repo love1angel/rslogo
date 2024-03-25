@@ -1,0 +1,12 @@
+SETX "10
+SETY "10
+
+WHILE EQ XCOR "10 [
+    LEFT "10
+    BACK "10
+]
+
+WHILE EQ XCOR "10 [
+      BACK "10
+      LEFT "10
+]

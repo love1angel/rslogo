@@ -1,0 +1,6 @@
+// Check if the SETHEADING command sets the turtle's heading correctly.
+PENDOWN
+SETHEADING "45
+FORWARD "50
+SETHEADING "-180
+BACK "50

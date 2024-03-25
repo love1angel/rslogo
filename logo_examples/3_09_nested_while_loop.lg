@@ -1,0 +1,47 @@
+PENDOWN
+
+MAKE "YPOS "0
+
+MAKE "KEEP_GOING_Y "1
+
+WHILE EQ :KEEP_GOING_Y "1 [
+
+      MAKE "XPOS "0
+      MAKE "KEEP_GOING_X "1
+
+      WHILE EQ :KEEP_GOING_X "1 [
+          SETX :XPOS
+          SETY :YPOS
+          SETHEADING "0
+
+          FORWARD "15
+          PENUP
+          BACK "15
+          PENDOWN
+
+          TURN "30
+          FORWARD "12
+          PENUP
+          BACK "12
+          PENDOWN
+
+          TURN "60
+          FORWARD "15
+          PENUP
+          BACK "15
+          PENDOWN
+
+          TURN "-90
+
+          ADDASSIGN "XPOS "25
+          IF EQ XCOR "200 [
+             MAKE "KEEP_GOING_X "0
+          ]
+      ]
+
+          ADDASSIGN "YPOS "25
+          IF EQ YCOR "200 [
+             MAKE "KEEP_GOING_Y "0
+          ]
+
+]

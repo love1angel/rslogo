@@ -1,0 +1,6 @@
+// Verify that the PENUP and PENDOWN commands work as expected.
+MAKE "distance "50
+PENUP
+FORWARD :distance
+PENDOWN
+FORWARD :distance

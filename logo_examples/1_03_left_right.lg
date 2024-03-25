@@ -1,0 +1,6 @@
+// Confirm that the FORWARD and BACK commands move the turtle correctly.
+PENDOWN
+LEFT "90
+FORWARD "50
+RIGHT "45
+FORWARD "50

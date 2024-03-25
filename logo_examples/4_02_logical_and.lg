@@ -1,0 +1,7 @@
+// Logical AND
+PENDOWN
+IF AND GT "4 "2 LT "3 "6 [
+   FORWARD "10
+]
+
+

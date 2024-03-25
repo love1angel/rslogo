@@ -20,7 +20,7 @@
                 }
             },
             "args": [
-                "/Users/helianthusxie/project/svg-project/rslogo/logo_examples/5_02_rectangles.lg",
+                "${workspaceFolder}/logo_examples/1_09_too_many_args_err.lg",
                 "${workspaceFolder}/test.png",
                 "200",
                 "200"

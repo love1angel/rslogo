@@ -1,0 +1,26 @@
+SETX "50
+SETY "50
+
+RIGHT "10
+
+IF EQ XCOR "50 [
+    PENDOWN
+
+    IF EQ YCOR "50 [
+        SETPENCOLOR "15
+    ]
+    LEFT "10
+    BACK "10
+
+    IF EQ YCOR "50 [
+        SETPENCOLOR "14
+        LEFT "10
+        BACK "10
+    ]
+
+    IF EQ YCOR "60 [
+        SETPENCOLOR "13
+        LEFT "10
+        BACK "10
+    ]
+]
