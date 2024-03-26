@@ -31,7 +31,10 @@ fn sequence_handing(name: FunName, tokens: &Vec<Token>) -> ASTNode {
             }
             joined_string.push_str(str);
         } else {
-            fatal_error(error::LogoError::NotAexpression(tokens[i].souce.clone()));
+            fatal_error(error::LogoError::NotAexpression(
+                tokens[0].souce.clone(),
+                tokens[i].souce.clone(),
+            ));
             panic!("not a expresssion");
         }
     }
@@ -220,6 +223,7 @@ where
                 lexer::keyword::Keyword::FEnd => {
                     fatal_error(error::LogoError::FunctionDefineFailed(
                         self.token_source.get_current_line_number(),
+                        "END".to_string(),
                         "not define a function, but meet END".to_string(),
                     ));
                     todo!()
@@ -362,8 +366,10 @@ where
                     block.push(self.handle_token(tokens));
                 }
             } else {
+                let str = String::from("function name: ");
                 fatal_error(error::LogoError::FunctionDefineFailed(
                     self.token_source.get_current_line_number(),
+                    str + func_name,
                     "not found function define END".to_string(),
                 ));
             }

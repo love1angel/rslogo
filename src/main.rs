@@ -61,7 +61,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("FOREWARD".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.foreward(v);
@@ -82,7 +82,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("BACK".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.back(v);
@@ -103,7 +103,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("LEFT".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.left(v);
@@ -124,7 +124,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("RIGHT".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.right(v);
@@ -145,7 +145,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("SETCOLOR".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.set_color(v as u32);
@@ -166,7 +166,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("TURN".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.turn(v as i32);
@@ -187,7 +187,10 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression(
+                                    "SETHEADING".to_string(),
+                                    str,
+                                ));
                             }
                             assert!(args.len() == 1);
                             executor.set_heading(v as i32);
@@ -208,7 +211,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("SETX".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.set_x_coordinate(v);
@@ -229,7 +232,7 @@ impl Manager {
                                     str.push_str(&args[i]);
                                     str.push(' ');
                                 }
-                                fatal_error(LogoError::NotAexpression(str));
+                                fatal_error(LogoError::NotAexpression("SETY".to_string(), str));
                             }
                             assert!(args.len() == 1);
                             executor.set_y_coordinate(v);
