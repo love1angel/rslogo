@@ -1,3 +1,4 @@
+use miette::{miette, Severity};
 use thiserror::Error;
 
 // 定义一个错误类型
@@ -27,14 +28,69 @@ pub enum LogoError {
 
 pub fn fatal_error(error: LogoError) {
     match error {
-        LogoError::TooManyArguments(_, _) => {}
-        LogoError::UnExpectedToken(_) => todo!(),
-        LogoError::UnDefinedVariable(_) => todo!(),
-        LogoError::UnvalidIfOrWhile(_, _) => todo!(),
-        LogoError::FunctionDefineFailed(_, _, _) => todo!(),
-        LogoError::NoEnoughArguments(_) => todo!(),
-        LogoError::NotAexpression(_, _) => todo!(),
+        LogoError::TooManyArguments(_, _) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "reduct argument",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
+        LogoError::UnExpectedToken(_) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "please check the token",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
+        LogoError::UnDefinedVariable(_) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "define variable first",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
+        LogoError::UnvalidIfOrWhile(_, _) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "check if while style",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
+        LogoError::FunctionDefineFailed(_, _, _) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "define function correctly",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
+        LogoError::NoEnoughArguments(_) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "check argument number",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
+        LogoError::NotAexpression(_, _) => {
+            let report = miette!(
+                severity = Severity::Error,
+                help = "please give a expression calculable",
+                "{}",
+                error,
+            );
+            eprintln!("failed to build since: {:?}", report);
+        }
     }
-    eprintln!("failed to build since: {:?}", error);
     std::process::exit(1);
 }
